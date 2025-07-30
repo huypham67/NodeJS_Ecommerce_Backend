@@ -18,7 +18,7 @@ app.use(compression()); // Compress response bodies for better performance
 // init db
 require('./dbs/init.mongodb');
 const { checkOverload } = require('./helpers/check.connect');
-checkOverload(); // Monitor active connections and system load
+//checkOverload(); // Monitor active connections and system load
 
 // init routes
 app.get('/', (req, res, next) => {

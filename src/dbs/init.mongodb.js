@@ -1,7 +1,8 @@
 'use strict'
 
 const mongoose = require('mongoose');
-const connectionString = 'mongodb://sa:123123@localhost:27017/shopDEV?authSource=admin';
+const { db: { host, name, port, user, password, authSource } } = require('../configs/config.mongodb');
+const connectionString = `mongodb://${user}:${password}@${host}:${port}/${name}?authSource=${authSource}`;
 const { countConnect } = require('../helpers/check.connect');
 
 class Database {
@@ -22,6 +23,7 @@ class Database {
             maxPoolSize: 50, // Maximum number of connections in the pool
         }).then(() => {
             countConnect();
+            console.log(connectionString);
             console.log('MongoDB PROD connected successfully');
         })
             .catch(err => console.error('MongoDB connection error:', err));
