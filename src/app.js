@@ -16,6 +16,9 @@ app.use(compression()); // Compress response bodies for better performance
 // morgan('short');
 
 // init db
+require('./dbs/init.mongodb');
+const { checkOverload } = require('./helpers/check.connect');
+checkOverload(); // Monitor active connections and system load
 
 // init routes
 app.get('/', (req, res, next) => {
@@ -23,7 +26,7 @@ app.get('/', (req, res, next) => {
 
     return res.status(200).json({
         message: 'Welcome to the Node.js E-commerce API',
-        metadata: strCompression.repeat(10000)
+        //metadata: strCompression.repeat(10000)
     });
 });
 
