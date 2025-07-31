@@ -8,6 +8,8 @@ const app = express();
 app.use(morgan('dev')); // Log HTTP requests
 app.use(helmet()); // Set security-related HTTP headers
 app.use(compression()); // Compress response bodies for better performance
+app.use(express.json()); // Parse JSON request bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
 // morgan('dev')
 // morgan('tiny');
@@ -21,14 +23,7 @@ const { checkOverload } = require('./helpers/check.connect');
 //checkOverload(); // Monitor active connections and system load
 
 // init routes
-app.get('/', (req, res, next) => {
-    const strCompression = 'Hello, World!';
-
-    return res.status(200).json({
-        message: 'Welcome to the Node.js E-commerce API',
-        //metadata: strCompression.repeat(10000)
-    });
-});
+app.use('', require('./routes'));
 
 // handle errors
 
