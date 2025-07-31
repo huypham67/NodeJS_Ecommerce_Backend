@@ -81,7 +81,6 @@ class AccessService {
                     code: 201,
                     metadata: {
                         shop: getInfoData({
-                        shop: getInfoData({
                             fields: ['_id', 'name', 'email'],
                             object: newShop
                         }),
