@@ -25,7 +25,7 @@ const apiKey = async (req, res, next) => {
         }
 
         req.objKey = objKey;
-        next();
+        return next();
     } catch (error) {
         next(error);
     }
@@ -41,12 +41,18 @@ const permission = (permission) => {
 
         console.log(`Permission check passed for: ${permission}`);
 
-        next();
-
+        return next();
     }
 }
 
+const asyncHandler = (fn) => {
+    return (req, res, next) => {
+        Promise.resolve(fn(req, res, next)).catch(next);
+    };
+};
+
 module.exports = {
     apiKey,
-    permission
+    permission,
+    asyncHandler
 };
