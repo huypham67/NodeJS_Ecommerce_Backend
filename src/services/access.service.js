@@ -18,6 +18,13 @@ const RoleShop = {
 }
 
 class AccessService {
+
+    static logout = async (keyStore) => {
+        const deleteKey = await KeyTokenService.removeKeyTokenById(keyStore._id);
+        console.log("Key deleted successfully:", deleteKey);
+        return deleteKey;
+    };
+
     /*
         1 - check email in dbs
         2 - match password
