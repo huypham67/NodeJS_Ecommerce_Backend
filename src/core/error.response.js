@@ -1,9 +1,6 @@
 'use strict'
 
 const StatusCode = {
-    OK: 200,
-    CREATED: 201,
-    NO_CONTENT: 204,
     BAD_REQUEST: 400,
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
@@ -13,9 +10,6 @@ const StatusCode = {
 }
 
 const ReasonStatusCode = {
-    OK: 'OK',
-    CREATED: 'Created',
-    NO_CONTENT: 'No Content',
     BAD_REQUEST: 'Bad Request',
     UNAUTHORIZED: 'Unauthorized',
     FORBIDDEN: 'Forbidden',
@@ -44,7 +38,14 @@ class BadRequestError extends ErrorResponse {
     }
 }
 
+class AuthFailureError extends ErrorResponse {
+    constructor(message = ReasonStatusCode.UNAUTHORIZED, statusCode = StatusCode.UNAUTHORIZED) {
+        super(message, statusCode);
+    }
+}
+
 module.exports = {
     ConflictRequestError,
-    BadRequestError
+    BadRequestError,
+    AuthFailureError
 }
