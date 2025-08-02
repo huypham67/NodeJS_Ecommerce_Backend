@@ -4,10 +4,10 @@ const shopModel = require('../models/shop.model');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const KeyTokenService = require('./keytoken.service');
-const { createTokenPair } = require('../auth/authUtils');
+const { createTokenPair, verifyJWT } = require('../auth/authUtils');
 const { getInfoData } = require('../utils');
 const { ceil, find } = require('lodash');
-const { BadRequestError, ConflictRequestError, AuthFailureError } = require('../core/error.response');
+const { BadRequestError, ConflictRequestError, AuthFailureError, ForbiddenError } = require('../core/error.response');
 const { findByEmail } = require('./shop.service');
 
 const RoleShop = {
@@ -18,6 +18,53 @@ const RoleShop = {
 }
 
 class AccessService {
+    /*
+        check this token used?
+    */
+    static handleRefreshToken = async (refreshToken) => {
+        //check xem token này đã được sử dụng chưa
+        const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken);
+        //nếu có
+        if (foundToken) {
+            // decode xem mày là thằng nào
+            const { userId, email } = await verifyJWT(refreshToken, foundToken.privateKey);
+            console.log("(1)--", { userId, email });
+            // xóa tất cả token trong keyStore
+            await KeyTokenService.deleteKeyTokenByUserId(userId);
+            throw new ForbiddenError('Something went wrong, please login again');
+        }
+
+        // NO - quá ngon
+        const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
+        if (!holderToken) throw new AuthFailureError('Shop not found with this refresh token');
+        const { userId, email } = await verifyJWT(refreshToken, holderToken.privateKey);
+        console.log("(2)--", { userId, email });
+        // check useId 
+        const foundShop = await findByEmail({ email });
+        if (!foundShop) throw new AuthFailureError('Shop not found with this email');
+
+        //create 1 cặp mới
+        const tokens = await createTokenPair(
+            { userId, email: foundShop.email, roles: foundShop.roles }, holderToken.publicKey, holderToken.privateKey);
+        // update lại refreshToken
+        await KeyTokenService.updateKeyToken(holderToken._id, {
+            refreshToken: tokens.refreshToken,
+            refreshTokensUsed: refreshToken
+        });
+
+
+        return {
+            shop: getInfoData({
+                fields: ['_id', 'name', 'email'],
+                object: foundShop
+            }),
+            tokens: {
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken
+            }
+        }
+
+    };
 
     static logout = async (keyStore) => {
         const deleteKey = await KeyTokenService.removeKeyTokenById(keyStore._id);
