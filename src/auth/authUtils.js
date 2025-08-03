@@ -63,13 +63,24 @@ const authentication = asyncHandler(async (req, res, next) => {
     if (!accessToken) throw new AuthFailureError('Missing access token in request headers');
 
     try {
-        const decodedUser = jwt.verify(accessToken, keyStore.publicKey);
+        const decodedUser = jwt.verify(accessToken, keyStore.publicKey); //nếu token không hợp lệ sẽ ném lỗi 
         if (userId !== decodedUser.userId) {
             throw new AuthFailureError('Invalid userId in access token');
         }
         req.keyStore = keyStore;
         return next();
     } catch (error) {
+        // 👇 Phân biệt rõ lỗi
+        if (error.name === 'TokenExpiredError') {
+            throw new AuthFailureError('Access token expired');
+        }
+
+        if (error.name === 'JsonWebTokenError') {
+            throw new AuthFailureError('Invalid access token');
+        }
+
+        // fallback
+        throw new AuthFailureError('Access token verification failed');
     }
 
 });

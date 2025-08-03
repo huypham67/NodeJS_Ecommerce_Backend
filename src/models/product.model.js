@@ -14,7 +14,7 @@ const productSchema = new Schema({
     product_type: {
         type: String,
         required: true,
-        enum: ['Electronics', 'Clothing', 'Furniture']
+        enum: ['Electronic', 'Clothing', 'Furniture']
     },
     product_shop: { type: Schema.Types.ObjectId, ref: 'Shop' },
     product_attributes: { type: Schema.Types.Mixed, required: true }
@@ -45,8 +45,8 @@ const electronicSchema = new Schema({
     timestamps: true
 });
 
-modules.exports = {
+module.exports = {
     product: model(DOCUMENT_NAME, productSchema, COLLECTION_NAME),
     clothing: model('Clothing', clothingSchema, 'clothing'),
-    electronics: model('Electronics', electronicSchema, 'electronics')
+    electronics: model('Electronic', electronicSchema, 'electronic')
 }
