@@ -3,7 +3,7 @@
 const { model, Schema } = require('mongoose');
 
 const DOCUMENT_NAME = 'Product'
-const COLLECTION_NAME = 'Products'
+const COLLECTION_NAME = 'products'
 
 const productSchema = new Schema({
     product_name: { type: String, required: true },
@@ -28,7 +28,8 @@ const productSchema = new Schema({
 const clothingSchema = new Schema({
     brand: { type: String, required: true },
     size: String,
-    material: String
+    material: String,
+    product_shop: { type: Schema.Types.ObjectId, ref: 'Shop' } // reference to the shop
 }, {
     collection: 'clothing',
     timestamps: true
@@ -39,7 +40,8 @@ const clothingSchema = new Schema({
 const electronicSchema = new Schema({
     manufacturer: { type: String, required: true },
     model: String,
-    color: { type: Schema.Types.Mixed, required: true }
+    color: { type: Schema.Types.Mixed, required: true },
+    product_shop: { type: Schema.Types.ObjectId, ref: 'Shop' } // reference to the shop
 }, {
     collection: 'electronic',
     timestamps: true
@@ -48,5 +50,5 @@ const electronicSchema = new Schema({
 module.exports = {
     product: model(DOCUMENT_NAME, productSchema, COLLECTION_NAME),
     clothing: model('Clothing', clothingSchema, 'clothing'),
-    electronics: model('Electronic', electronicSchema, 'electronic')
+    electronic: model('Electronic', electronicSchema, 'electronic')
 }

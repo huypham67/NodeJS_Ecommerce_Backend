@@ -68,6 +68,7 @@ const authentication = asyncHandler(async (req, res, next) => {
             throw new AuthFailureError('Invalid userId in access token');
         }
         req.keyStore = keyStore;
+        req.user = decodedUser; // decodedUser chứa thông tin người dùng đã được xác thực
         return next();
     } catch (error) {
         // 👇 Phân biệt rõ lỗi

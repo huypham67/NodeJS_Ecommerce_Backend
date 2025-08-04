@@ -40,18 +40,21 @@ class Product {
     }
 
     // create new product
-    async createProduct() {
-        return await product.create(this);
+    async createProduct(product_id) {
+        return await product.create({ ...this, _id: product_id });
     }
 }
 
 // Define sub-class for different product types clothing
 class Clothing extends Product {
     async createProduct() {
-        const newClothing = await clothing.create(this.product_attributes);
+        const newClothing = await clothing.create({
+            ...this.product_attributes,
+            product_shop: this.product_shop // reference to the shop
+        });
         if (!newClothing) throw new BadRequestError('Failed to create clothing product');
 
-        const newProduct = await super.createProduct();
+        const newProduct = await super.createProduct(newClothing._id);
         if (!newProduct) throw new BadRequestError('Failed to create product');
 
         return newProduct;
@@ -61,10 +64,13 @@ class Clothing extends Product {
 // Define sub-class for different product types electronic
 class Electronic extends Product {
     async createProduct() {
-        const newElectronic = await electronic.create(this.product_attributes);
+        const newElectronic = await electronic.create({
+            ...this.product_attributes,
+            product_shop: this.product_shop // reference to the shop
+        });
         if (!newElectronic) throw new BadRequestError('Failed to create electronic product');
 
-        const newProduct = await super.createProduct();
+        const newProduct = await super.createProduct(newElectronic._id);
         if (!newProduct) throw new BadRequestError('Failed to create product');
 
         return newProduct;
