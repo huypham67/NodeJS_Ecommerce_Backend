@@ -21,6 +21,45 @@ class AccessService {
     /*
         check this token used?
     */
+
+    static handleRefreshTokenV2 = async ({ refreshToken, user, keyStore }) => {
+        const { userId, email } = user;
+
+        if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+            await KeyTokenService.deleteKeyTokenByUserId(userId);
+            throw new ForbiddenError('Something went wrong, please login again');
+        }
+
+        if (keyStore.refreshToken !== refreshToken) {
+            throw new AuthFailureError('Shop not found with this refresh token');
+        }
+
+        const foundShop = await findByEmail({ email });
+        if (!foundShop) throw new AuthFailureError('Shop not found with this email');
+
+        //create 1 cặp mới
+        const tokens = await createTokenPair(
+            { userId, email: foundShop.email, roles: foundShop.roles }, keyStore.publicKey, keyStore.privateKey);
+        // update lại refreshToken
+        await KeyTokenService.updateKeyToken(keyStore._id, {
+            refreshToken: tokens.refreshToken,
+            refreshTokensUsed: refreshToken
+        });
+
+
+        return {
+            shop: getInfoData({
+                fields: ['_id', 'name', 'email'],
+                object: foundShop
+            }),
+            tokens: {
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken
+            }
+        }
+
+    };
+
     static handleRefreshToken = async (refreshToken) => {
         //check xem token này đã được sử dụng chưa
         const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken);
