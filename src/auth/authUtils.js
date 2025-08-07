@@ -15,7 +15,7 @@ const HEADER = {
 const createTokenPair = async (payload, publicKey, privateKey) => {
     try {
         // Create access token
-        const accessToken = await jwt.sign(payload, publicKey, {
+        const accessToken = await jwt.sign(payload, privateKey, {
             expiresIn: '2 days'
         });
 
@@ -64,7 +64,7 @@ const authentication = asyncHandler(async (req, res, next) => {
     if (!accessToken) throw new AuthFailureError('Missing access token in request headers');
 
     try {
-        const decodedUser = jwt.verify(accessToken, keyStore.publicKey); //nếu token không hợp lệ sẽ ném lỗi 
+        const decodedUser = jwt.verify(accessToken, keyStore.privateKey); //nếu token không hợp lệ sẽ ném lỗi 
         if (userId !== decodedUser.userId) {
             throw new AuthFailureError('Invalid userId in access token');
         }
@@ -88,14 +88,6 @@ const authentication = asyncHandler(async (req, res, next) => {
 });
 
 const authenticationV2 = asyncHandler(async (req, res, next) => {
-    /*
-        1 - Check userId missing???
-        2 - get accessToken
-        3 - verifyToken
-        4 - check user in dbs
-        5 - check keyStore with this userId?
-        6 - OK all => return next()
-    */
 
     //1
     const userId = req.headers[HEADER.CLIENT_ID];
