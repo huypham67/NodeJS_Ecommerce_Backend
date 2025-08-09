@@ -3,6 +3,12 @@
 const { product, clothing, electronic, furniture } = require('../models/product.model');
 
 const { BadRequestError } = require('../core/error.response');
+const { findAllDraftProductsByShop,
+    publishProductByShop,
+    unPublishProductByShop,
+    findAllPublishedProductsByShop,
+    searchProducts
+} = require('../models/repositories/product.repo');
 
 // define Factory class to create product
 
@@ -22,6 +28,36 @@ class ProductFactory {
             throw new BadRequestError(`Invalid product type ${type}. Supported types are Clothing, Electronic, and Furniture.`);
         }
         return new productClass(payload).createProduct();
+    }
+
+    // PUT
+    static async publishProductByShop({ product_shop, product_id }) {
+        return await publishProductByShop({ product_shop, product_id });
+    }
+    static async unPublishProductByShop({ product_shop, product_id }) {
+        return await unPublishProductByShop({ product_shop, product_id });
+    }
+    // END PUT
+
+    //query
+    static async findAllDraftProductsByShop({ product_shop, limit = 50, skip = 0 }) {
+        const query = { isDraft: true };
+        if (product_shop) {
+            query.product_shop = product_shop;
+        }
+        return await findAllDraftProductsByShop({ query, limit, skip });
+    }
+
+    static async findAllPublishedProductsByShop({ product_shop, limit = 50, skip = 0 }) {
+        const query = { isPublished: true };
+        if (product_shop) {
+            query.product_shop = product_shop;
+        }
+        return await findAllPublishedProductsByShop({ query, limit, skip });
+    }
+
+    static async searchProducts({ keyword }) {
+        return await searchProducts({ keyword });
     }
 }
 
