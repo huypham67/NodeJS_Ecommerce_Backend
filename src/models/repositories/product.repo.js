@@ -1,6 +1,7 @@
 'use strict'
 
 const { search } = require("../../routes/product");
+const { getSelectData, getUnselectData } = require("../../utils");
 const { product } = require("../product.model");
 
 
@@ -44,7 +45,24 @@ const unPublishProductByShop = async ({ product_shop, product_id }) => {
     return modifiedCount; // 0 hoặc 1
 };
 
-const queryProductByShop = async ({ query, limit = 50, skip = 0 }) => {
+const findAllProducts = async ({ limit, sort, page, filter, select }) => {
+    const skip = (page - 1) * limit;
+    const sortBy = sort === 'ctime' ? { _id: -1 } : { id: 1 };
+    const products = await product.find(filter)
+        .sort(sortBy)
+        .skip(skip)
+        .limit(limit)
+        .select(getSelectData(select))
+        .lean();
+    return products;
+}
+
+const findProductById = async ({ product_id, unselect = [] }) => {
+    return await product.findById(product_id)
+        .select(getUnselectData(unselect));
+}
+
+const queryProductByShop = async ({ query, limit, skip }) => {
     return await product.find(query)
         .limit(limit)
         .skip(skip)
@@ -60,5 +78,7 @@ module.exports = {
     findAllPublishedProductsByShop,
     publishProductByShop,
     unPublishProductByShop,
-    searchProducts
+    searchProducts,
+    findAllProducts,
+    findProductById
 }
