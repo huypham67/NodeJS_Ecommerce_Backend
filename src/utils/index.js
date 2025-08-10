@@ -18,8 +18,37 @@ const getUnselectData = (unselect = []) => {
     );
 }
 
+const removeUndefinedFields = (obj) => {
+    Object.keys(obj).forEach(key => {
+        if (obj[key] === undefined || obj[key] === null) {
+            delete obj[key];
+        }
+    });
+    return obj;
+}
+
+const updateNestedObjectParser = (obj) => {
+    console.log("(3):: ", obj);
+    const final = {};
+    Object.keys(obj).forEach(key => {
+        if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+            const nestedObj = updateNestedObjectParser(obj[key]);
+            Object.keys(nestedObj).forEach(nestedKey => {
+                final[`${key}.${nestedKey}`] = nestedObj[nestedKey];
+            });
+
+        } else {
+            final[key] = obj[key];
+        }
+    });
+    console.log("(4):: ", final);
+    return final;
+}
+
 module.exports = {
     getInfoData,
     getSelectData,
-    getUnselectData
+    getUnselectData,
+    removeUndefinedFields,
+    updateNestedObjectParser
 };

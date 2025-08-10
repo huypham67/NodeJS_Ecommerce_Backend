@@ -17,14 +17,13 @@ router.get('/:id', asyncHandler(productController.findProductById));
 //authentication
 router.use(authenticationV2);
 //////////////////
-// logout
 router.post('', asyncHandler(productController.createProduct));
-// publish product
+router.patch('/:id', asyncHandler(productController.updateProduct));
 router.post('/:id/publish', asyncHandler(productController.publishProductByShop));
-// unpublish product
 router.post('/:id/unpublish', asyncHandler(productController.unPublishProductByShop));
+
 // QUERY
-router.get('/drafts', asyncHandler(productController.findAllDraftProductsByShop));
-router.get('/published', asyncHandler(productController.findAllPublishedProductsByShop));
+router.get('/drafts/all', asyncHandler(productController.findAllDraftProductsByShop));
+router.get('/published/all', asyncHandler(productController.findAllPublishedProductsByShop));
 
 module.exports = router;
